@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>For Abik</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Patrick+Hand&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    font-family: "DM Sans", sans-serif;
+    background:
+        radial-gradient(circle at 15% 20%, rgba(255,255,255,.8), transparent 25%),
+        radial-gradient(circle at 85% 80%, rgba(169,187,197,.35), transparent 30%),
+        #e8eef1;
+    color: #334a5c;
+}
+
+/* ================= OPENING ================= */
+
+.scene {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    transition: opacity .8s ease;
+}
+
+.hide {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.title {
+    font-family: "Patrick Hand", cursive;
+    font-size: clamp(52px, 8vw, 82px);
+    color: #334a5c;
+    letter-spacing: 2px;
+    margin-bottom: 25px;
+    animation: floating 3s ease-in-out infinite;
+}
+
+@keyframes floating {
+    0%,100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-7px);
+    }
+}
+
+.button {
+    border: none;
+    background: #9eb3be;
+    color: white;
+    padding: 13px 30px;
+    border-radius: 14px;
+    font-family: "Patrick Hand", cursive;
+    font-size: 25px;
+    cursor: pointer;
+    box-shadow: 0 8px 20px rgba(51,74,92,.18);
+    transition: .25s;
+}
+
+.button:hover {
+    transform: translateY(-4px);
+    background: #879fab;
+}
+
+
+/* ================= LETTER ================= */
+
+.letter-scene {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.letter-scene.show {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.note-wrapper {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    perspective: 1200px;
+}
+
+
+/*
+==================================================
+INI SATU-SATUNYA KERTAS.
+TIDAK ADA KERTAS TAMBAHAN.
+==================================================
+*/
+
+.note {
+    position: relative;
+
+    width: min(82vw, 570px);
+    height: 390px;
+
+    padding: 48px;
+
+    background: #f8f5ee;
+
+    border-radius: 5px;
+
+    box-shadow:
+        0 20px 45px rgba(51,74,92,.18),
+        0 3px 8px rgba(51,74,92,.1);
+
+    transform-origin: center center;
+
+    overflow: hidden;
+
+    /*
+    bentuk awal = kertas biasa
+    */
+    clip-path: polygon(
+        0% 0%,
+        100% 0%,
+        100% 100%,
+        0% 100%
+    );
+}
+
+
+/* garis kertas */
+
+.note::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+
+    background:
+        repeating-linear-gradient(
+            0deg,
+            transparent 0px,
+            transparent 31px,
+            rgba(51,74,92,.07) 32px
+        );
+
+    pointer-events: none;
+}
+
+
+/* ================= MESSAGE ================= */
+
+.message {
+    position: relative;
+    z-index: 2;
+
+    font-family: "Patrick Hand", cursive;
+    font-size: clamp(20px, 3vw, 27px);
+    line-height: 1.65;
+
+    color: #334a5c;
+}
+
+
+/* ================= FOLDING ================= */
+
+/*
+    Kertas yang sama:
+    
+    RECTANGLE
+       ↓
+    mulai terlipat
+       ↓
+    semakin kecil
+       ↓
+    menjadi segitiga
+       ↓
+    menjadi pesawat
+*/
+
+.note.folding {
+
+    animation:
+
+        /*
+        1. kertas sedikit bergerak
+        */
+        paperShake .45s ease,
+
+        /*
+        2. kertas mulai terlipat
+        */
+        foldPaper 2.8s .5s ease-in-out forwards,
+
+        /*
+        3. kertas sudah jadi pesawat,
+           lalu terbang
+        */
+        flyPlane 2.2s 3.3s cubic-bezier(.2,.7,.2,1) forwards;
+}
+
+
+/* pesan ikut tertutup */
+
+.note.folding .message {
+    animation:
+        disappearMessage 1.2s .7s ease-in forwards;
+}
+
+
+@keyframes paperShake {
+
+    0% {
+        transform: rotate(0);
+    }
+
+    20% {
+        transform: rotate(-1.5deg);
+    }
+
+    40% {
+        transform: rotate(1.5deg);
+    }
+
+    60% {
+        transform: rotate(-1deg);
+    }
+
+    80% {
+        transform: rotate(.5deg);
+    }
+
+    100% {
+        transform: rotate(0);
+    }
+}
+
+
+/*
+==================================================
+INI BAGIAN PALING PENTING.
+
+TIDAK ADA ELEMENT KERTAS BARU.
+
+SATU .note LANGSUNG BERUBAH BENTUK.
+==================================================
+*/
+
+@keyframes foldPaper {
+
+    /* KERTAS MASIH NORMAL */
+
+    0% {
+
+        width: min(82vw, 570px);
+        height: 390px;
+
+        padding: 48px;
+
+        border-radius: 5px;
+
+        clip-path: polygon(
+            0% 0%,
+            100% 0%,
+            100% 100%,
+            0% 100%
+        );
+
+        transform:
+            rotate(0deg)
+            scale(1);
+    }
+
+
+    /* mulai melipat */
+
+    20% {
+
+        width: min(82vw, 570px);
+        height: 390px;
+
+        clip-path: polygon(
+            0% 0%,
+            100% 0%,
+            72% 50%,
+            100% 100%,
+            0% 100%,
+            28% 50%
+        );
+
+        transform:
+            rotate(1deg)
+            scale(.95);
+    }
+
+
+    /* kertas semakin terlipat */
+
+    42% {
+
+        width: 520px;
+        height: 350px;
+
+        padding: 35px;
+
+        clip-path: polygon(
+            0% 0%,
+            100% 50%,
+            0% 100%,
+            20% 50%
+        );
+
+        transform:
+            rotate(-1deg)
+            scale(.82);
+    }
+
+
+    /* mulai terlihat seperti lipatan pesawat */
+
+    65% {
+
+        width: 450px;
+        height: 270px;
+
+        padding: 20px;
+
+        clip-path: polygon(
+            0% 0%,
+            100% 50%,
+            0% 100%,
+            30% 50%
+        );
+
+        transform:
+            rotate(1deg)
+            scale(.72);
+    }
+
+
+    /* PESAWAT TERBENTUK */
+
+    82% {
+
+        width: 410px;
+        height: 220px;
+
+        padding: 0;
+
+        border-radius: 2px;
+
+        clip-path: polygon(
+            0% 0%,
+            100% 50%,
+            0% 100%,
+            25% 50%
+        );
+
+        transform:
+            rotate(0deg)
+            scale(.65);
+    }
+
+
+    /* bentuk akhir */
+
+    100% {
+
+        width: 400px;
+        height: 210px;
+
+        padding: 0;
+
+        border-radius: 2px;
+
+        clip-path: polygon(
+            0% 0%,
+            100% 50%,
+            0% 100%,
+            23% 50%
+        );
+
+        transform:
+            rotate(0deg)
+            scale(.62);
+    }
+}
+
+
+/* tulisan benar-benar hilang karena kertas melipat */
+
+@keyframes disappearMessage {
+
+    0% {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    50% {
+        opacity: .4;
+        transform: scale(.75);
+    }
+
+    100% {
+        opacity: 0;
+        transform: scale(.2);
+    }
+}
+
+
+/* ================= PESAWAT TERBANG ================= */
+
+@keyframes flyPlane {
+
+    0% {
+
+        transform:
+            translate(0, 0)
+            rotate(0deg)
+            scale(.62);
+
+        opacity: 1;
+    }
+
+    25% {
+
+        transform:
+            translate(90px, -35px)
+            rotate(-6deg)
+            scale(.62);
+
+        opacity: 1;
+    }
+
+    55% {
+
+        transform:
+            translate(330px, -120px)
+            rotate(-12deg)
+            scale(.55);
+
+        opacity: 1;
+    }
+
+    100% {
+
+        transform:
+            translate(850px, -430px)
+            rotate(-18deg)
+            scale(.22);
+
+        opacity: 0;
+    }
+}
+
+
+/* ================= END ================= */
+
+.end-scene {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.end-scene.show {
+    opacity: 1;
+    pointer-events: auto;
+    transition:
+        opacity 1s ease,
+        transform 1s ease;
+}
+
+.end-title {
+    font-family: "Patrick Hand", cursive;
+    font-size: clamp(45px, 8vw, 78px);
+    color: #334a5c;
+    text-align: center;
+    margin-bottom: 22px;
+}
+
+.end-message {
+    max-width: 720px;
+    padding: 0 25px;
+
+    text-align: center;
+
+    font-family: "Patrick Hand", cursive;
+    font-size: clamp(21px, 3vw, 28px);
+    line-height: 1.6;
+
+    color: #536b7b;
+}
+
+.heart {
+    margin-top: 25px;
+
+    font-size: 42px;
+
+    color: #7e9aaa;
+
+    animation: heartbeat 1.5s infinite;
+}
+
+@keyframes heartbeat {
+
+    0%,100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.15);
+    }
+}
+
+
+/* ================= MOBILE ================= */
+
+@media(max-width:600px) {
+
+    .note {
+
+        width: 84vw;
+        height: 410px;
+
+        padding: 32px 27px;
+    }
+
+    .message {
+        font-size: 20px;
+    }
+
+    @keyframes foldPaper {
+
+        0% {
+
+            width: 84vw;
+            height: 410px;
+
+            clip-path: polygon(
+                0 0,
+                100% 0,
+                100% 100%,
+                0 100%
+            );
+
+            transform: scale(1);
+        }
+
+        40% {
+
+            width: 82vw;
+            height: 340px;
+
+            clip-path: polygon(
+                0 0,
+                100% 50%,
+                0 100%,
+                20% 50%
+            );
+
+            transform: scale(.8);
+        }
+
+        75% {
+
+            width: 350px;
+            height: 210px;
+
+            clip-path: polygon(
+                0 0,
+                100% 50%,
+                0 100%,
+                24% 50%
+            );
+
+            transform: scale(.65);
+        }
+
+        100% {
+
+            width: 330px;
+            height: 190px;
+
+            clip-path: polygon(
+                0 0,
+                100% 50%,
+                0 100%,
+                23% 50%
+            );
+
+            transform: scale(.6);
+        }
+    }
+
+    @keyframes flyPlane {
+
+        0% {
+            transform: translate(0,0) rotate(0) scale(.6);
+            opacity: 1;
+        }
+
+        100% {
+            transform:
+                translate(550px,-350px)
+                rotate(-18deg)
+                scale(.2);
+            opacity: 0;
+        }
+    }
+}
+</style>
+</head>
+
+<body>
+
+
+<!-- ================= OPENING ================= -->
+
+<section class="scene" id="opening">
+
+    <h1 class="title">
+        HELOOWW ABIKK
+    </h1>
+
+    <button class="button" onclick="openLetter()">
+        pencet ini bii
+    </button>
+
+</section>
+
+
+<!-- ================= LETTER ================= -->
+
+<section class="scene letter-scene" id="letterScene">
+
+    <div class="note-wrapper">
+
+        <!-- INI SATU-SATUNYA KERTAS -->
+
+        <div class="note" id="note">
+
+            <div class="message" id="message"></div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- ================= ENDING ================= -->
+
+<section class="scene end-scene" id="endScene">
+
+    <h1 class="end-title">
+        THANK YOU ABIIIIKKK
+    </h1>
+
+    <p class="end-message">
+        maaaciih yaa abikk heueheueue, ini aku nyoba code code nya dari AI dulu, nanti abik yang ajarin aku yaaa sampe bisaa
+    </p>
+
+    <div class="heart">
+        ♡
+    </div>
+
+</section>
+
+
+<script>
+
+const text = `Hai teman serang barat ku wkwk. abiik makasih yaa udah mau ajarin c++, makasih juga udah punya niat ngajarin BAHKAN SELALU NAWARIN BELAJAR YANG BARU....huhuu i'm so thankfull to have you yang mau ajarin algoritma. BIII NANTI KAPAN KAPAN KITA BELAJAR BARENG NYAKK`;
+
+const opening = document.getElementById("opening");
+const letterScene = document.getElementById("letterScene");
+const endScene = document.getElementById("endScene");
+const note = document.getElementById("note");
+const message = document.getElementById("message");
+
+let index = 0;
+
+
+/* ================= OPEN ================= */
+
+function openLetter() {
+
+    opening.classList.add("hide");
+
+    setTimeout(() => {
+
+        letterScene.classList.add("show");
+
+        typeWriter();
+
+    }, 700);
+}
+
+
+/* ================= TYPEWRITER ================= */
+
+function typeWriter() {
+
+    if (index < text.length) {
+
+        message.innerHTML =
+            text.substring(0, index + 1) +
+            '<span style="border-right:2px solid #334a5c;"></span>';
+
+        index++;
+
+        let speed = 35;
+
+        if (
+            text[index - 1] === "." ||
+            text[index - 1] === ","
+        ) {
+            speed = 150;
+        }
+
+        setTimeout(typeWriter, speed);
+
+    } else {
+
+        message.innerHTML = text;
+
+        /*
+        Tulisan selesai.
+        Tunggu 1 detik.
+        Kemudian KERTAS ITU SENDIRI dilipat.
+        */
+
+        setTimeout(() => {
+
+            note.classList.add("folding");
+
+            /*
+            5.5 detik:
+            folding + terbang
+            */
+
+            setTimeout(() => {
+
+                letterScene.classList.remove("show");
+
+                setTimeout(() => {
+
+                    endScene.classList.add("show");
+
+                }, 300);
+
+            }, 5500);
+
+        }, 1000);
+    }
+}
+
+</script>
+
+</body>
+</html>
